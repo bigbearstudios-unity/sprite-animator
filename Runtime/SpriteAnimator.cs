@@ -12,19 +12,6 @@ namespace BBUnity {
         void OnAnimationChangedFrame(SpriteAnimator effect, int frame);
     }
 
-    [Serializable]
-    public class SpriteAnimatorFrame {
-        public SpriteAnimatorFrame() {
-            sprite = null;
-        }
-
-        public SpriteAnimatorFrame(Sprite newSprite) {
-            sprite = newSprite;
-        }
-
-        public Sprite sprite;
-    }
-
     /// <summary>
     /// SpriteAnimator
     /// A simple sprite animator for use without the Unity animation system
@@ -66,11 +53,13 @@ namespace BBUnity {
         public bool RestartOnEnable { get { return _restartOnEnable; } }
 
         public int CurrentFrame { get { return _currentFrame; } }
-        public bool IsComplete { get { return _currentFrame == _frames.Length; } }
+        public bool IsComplete { get { return _currentFrame == (_frames.Length - 1); } }
 
         private int NextFrame { get { return _currentFrame + 1; } }
 
-        public Sprite[] Frames { get { return _frames; } }
+        public Sprite[] Frames {
+            get { return _frames; }
+        }
 
         /*
          * Unity Overrides
@@ -147,25 +136,6 @@ namespace BBUnity {
             } else {
                 StopAnimation();
             }
-        }
-
-        public void AddFrame(Sprite sprite) {
-            Array.Resize(ref _frames, _frames.Length + 1);
-            _frames[_frames.Length - 1] = null;
-
-            Debug.Log(_frames.Length);
-        }
-
-        public void AddFrameAt(Sprite sprite, int index) {
-            
-        }
-
-        public void RemoveFrame(int index) {
-
-        }
-
-        public void ReorderFrame(int oldIndex, int newIndex) {
-
         }
 
         public void StartAnimation() {
