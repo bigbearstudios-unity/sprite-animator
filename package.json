@@ -1,14 +1,24 @@
 {
-  "name": "com.bigbearstudios.bbunityspriteanimator",
-  "version": "0.0.1",
-  "displayName": "BBUnity Sprite Animator",
-  "type": "library",
-  "author": {
-    "name": "Big Bear Studios",
-    "email": "development@bigbearstudios.co.uk",
-    "url": "https://bigbearstudios.co.uk/opensource"
-  },
-  "dependencies": {
-    "com.bigbearstudios.bbunitytestsupport":"0.0.1"
+    "name": "com.bigbearstudios.bbunityspriteanimator",
+    "version": "0.0.1",
+    "displayName": "BBUnity Sprite Animator",
+    "description": "",
+    "unity": "2018.3",
+    "repository": {
+      "type": "git",
+      "url": "git+https://gitlab.com/big-bear-studios-open-source/bbunityspriteanimator.git"
+    },
+    "bugs": "https://gitlab.com/big-bear-studios-open-source/bbunityspriteanimator/-/issues",
+    "author": {
+      "name": "Big Bear Studios",
+      "email": "development@bigbearstudios.co.uk",
+      "url": "https://bigbearstudios.co.uk/opensource"
+    },
+    "contributors": [{
+      "name": "Stuart Farnaby",
+      "email": "stuart@bigbearstudios.co.uk"
+    }],
+    "dependencies": {
+
+    }
   }
-}

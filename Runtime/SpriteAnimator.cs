@@ -37,7 +37,7 @@ namespace BBUnity {
 
         [SerializeField]
         [HideInInspector]
-        private Sprite[] _frames;
+        private Sprite[] _frames = null;
 
         private SpriteRenderer _spriteRenderer;
         private bool _isPlaying = false;
@@ -56,6 +56,7 @@ namespace BBUnity {
         public bool IsComplete { get { return _currentFrame == (_frames.Length - 1); } }
 
         private int NextFrame { get { return _currentFrame + 1; } }
+        private bool HasFrames { get { return _frames.Length > 0; } }
 
         public Sprite[] Frames {
             get { return _frames; }
@@ -73,11 +74,11 @@ namespace BBUnity {
                 Debug.LogError("A SpriteRenderer is required to use SpriteAnimator");
             }
 
-            if(_frames.Length > 0) {
+            if(_spriteRenderer != null && HasFrames) {
                 ResetAnimation();
             }
 
-            _timePerFrame = 1.0f / _framesPerSecond;
+            CalculateTimePerFrame();
         }
 
         private void Start() {
@@ -121,6 +122,10 @@ namespace BBUnity {
             _spriteRenderer.sprite = _frames[_currentFrame];
         }
 
+        private void CalculateTimePerFrame() {
+            _timePerFrame = 1.0f / _framesPerSecond;
+        }
+
         private void ResetAnimation() {
             _currentFrame = 0;
             _spriteRenderer.sprite = _frames[_currentFrame];
@@ -148,6 +153,10 @@ namespace BBUnity {
 
         public void SetFrame(int frame) {
             ChangeFrame(frame);
+        }
+
+        private void OnValidate() {
+            CalculateTimePerFrame();
         }
     }
 }
