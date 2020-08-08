@@ -8,7 +8,7 @@
     "email": "development@bigbearstudios.co.uk",
     "url": "https://bigbearstudios.co.uk/opensource"
   },
-    "dependencies": {
-        
-    }
+  "dependencies": {
+    "com.bigbearstudios.bbunitytestsupport":"0.0.1"
+  }
 }
