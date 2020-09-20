@@ -1,3 +1,15 @@
-﻿{
-	"name": "Unity.BBUnitySpriteAnimator"
+{
+    "name": "Unity.BBUnitySpriteAnimator",
+    "references": [
+        "GUID:90a66f91da0171342b2768710cbba427"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

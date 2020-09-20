@@ -7,7 +7,7 @@ namespace BBUnity {
     /// ISpriteAnimator
     /// The interface for SpriteAnimator
     /// </summary>
-    public interface ISpriteAnimator {
+    public interface ISpriteAnimatorCallback {
         void OnAnimationComplete(SpriteAnimator effect);
         void OnAnimationChangedFrame(SpriteAnimator effect, int frame);
     }
@@ -42,15 +42,14 @@ namespace BBUnity {
         private SpriteRenderer _spriteRenderer;
         private bool _isPlaying = false;
         private int _currentFrame = 0;
-        private float _timePerFrame, _lastFrameChange = 0;
-        private ISpriteAnimator _callback;
+        private float _timePerFrame, _lastFrameChange = 0.0f;
 
-        public bool IsPlaying { get { return _isPlaying; } }
+        CallbackHandler<ISpriteAnimatorCallback> _callbackHandler;
 
-        public bool Loop { get { return _loop; } }
-
-        public bool StartAutomatically { get { return _startAutomatically; } }
-        public bool RestartOnEnable { get { return _restartOnEnable; } }
+        public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; } }
+        public bool ShouldLoop { get { return _loop; } set { _loop = value; } }
+        public bool StartAutomatically { get { return _startAutomatically; } set { _startAutomatically = value; } }
+        public bool RestartOnEnable { get { return _restartOnEnable; } set { _restartOnEnable = value; } }
 
         public int CurrentFrame { get { return _currentFrame; } }
         public bool IsComplete { get { return _currentFrame == (_frames.Length - 1); } }
@@ -67,18 +66,19 @@ namespace BBUnity {
          */
 
         private void Awake() {
-            _callback = GetComponent<ISpriteAnimator>();
+            _callbackHandler =  new CallbackHandler<ISpriteAnimatorCallback>();
             _spriteRenderer = GetComponent<SpriteRenderer>();
 
             if(_spriteRenderer == null) {
                 Debug.LogError("A SpriteRenderer is required to use SpriteAnimator");
             }
 
-            if(_spriteRenderer != null && HasFrames) {
-                ResetAnimation();
+            if(_frames == null) {
+                _frames = new Sprite[0];
             }
 
             CalculateTimePerFrame();
+            ResetAnimation();
         }
 
         private void Start() {
@@ -98,28 +98,17 @@ namespace BBUnity {
         private void Update() {
             if(IsPlaying) {
                 _lastFrameChange += Time.deltaTime;
-                if (_lastFrameChange >= _timePerFrame) {
+                if(_lastFrameChange >= _timePerFrame) {
                     _lastFrameChange = _lastFrameChange - _timePerFrame;
                     IncrementCurrentFrame();
                 }
             }
         }
 
-        private void IncrementCurrentFrame() {
-            if(IsComplete) {
-                AnimationCompleted();
-            } else {
-                ChangeFrame(NextFrame);
-            }
-        }
-
         private void ChangeFrame(int frame) {
             _currentFrame = frame;
-            if (_callback != null) {
-                _callback.OnAnimationChangedFrame(this, frame);
-            }
-
             _spriteRenderer.sprite = _frames[_currentFrame];
+            _callbackHandler.Call(CallbackOnAnimationChangedFrame);
         }
 
         private void CalculateTimePerFrame() {
@@ -128,32 +117,102 @@ namespace BBUnity {
 
         private void ResetAnimation() {
             _currentFrame = 0;
-            _spriteRenderer.sprite = _frames[_currentFrame];
+
+            if(_spriteRenderer != null && HasFrames) {
+                _spriteRenderer.sprite = _frames[_currentFrame];
+            }
         }
 
         private void AnimationCompleted() {
-            if (_callback != null) {
-                _callback.OnAnimationComplete(this);
-            }
+            _callbackHandler.Call(CallbackOnAnimationComplete);
 
-            if (Loop) {
+            if (ShouldLoop) {
                 ChangeFrame(0);
             } else {
                 StopAnimation();
             }
         }
 
+        private void CallbackOnAnimationChangedFrame(ISpriteAnimatorCallback animator) {
+            animator.OnAnimationChangedFrame(this, _currentFrame);
+        }
+
+        private void CallbackOnAnimationComplete(ISpriteAnimatorCallback animator) {
+            animator.OnAnimationComplete(this);
+        }
+
+        /// <summary>
+        /// Increaments the current frame, this will always force a frame
+        /// skip even if the animation is paused
+        /// </summary>
+        public void IncrementCurrentFrame() {
+            if(IsComplete) {
+                AnimationCompleted();
+            } else {
+                ChangeFrame(NextFrame);
+            }
+        }
+
+        public void IncrementCurrentFrame(bool forceIncrement) {
+            if(forceIncrement) {
+                IncrementCurrentFrame();
+            } else {
+                if(IsPlaying) {
+                    IncrementCurrentFrame();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Starts the animation if its in a stopped state
+        /// </summary>
         public void StartAnimation() {
             _isPlaying = true;
         }
 
+        /// <summary>
+        /// Stops the animation if its in a playable state
+        /// </summary>
         public void StopAnimation() {
             _isPlaying = false;
         }
 
-        public void SetFrame(int frame) {
+        public void SetShouldLoop(bool loop) {
+            _loop = loop;
+        }
+
+        /// <summary>
+        /// Sets the frame of the animation
+        /// </summary>
+        /// <param name="frame"></param>
+        public void SetCurrentFrame(int frame) {
             ChangeFrame(frame);
         }
+
+        /// <summary>
+        /// Adds a single sprite to the end of the frames array
+        /// </summary>
+        /// <param name="sprite"></param>
+        public void AddFrame(Sprite sprite) {
+            Array.Resize(ref _frames, _frames.Length + 1);
+            _frames[_frames.Length - 1] = sprite;
+        }
+
+        /// <summary>
+        /// Replaces the entire frames array
+        /// </summary>
+        /// <param name="sprites"></param>
+        public void SetFrames(Sprite[] sprites) {
+            _frames = (Sprite[])sprites.Clone();
+        }
+
+        public void AddCallback(ISpriteAnimatorCallback callback) {
+            _callbackHandler.AddCallback(callback);
+        }
+
+        /*
+         * Editor
+         */
 
         private void OnValidate() {
             CalculateTimePerFrame();
