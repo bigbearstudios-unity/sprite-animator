@@ -7,7 +7,7 @@ namespace BBUnity {
     /// ISpriteAnimator
     /// The interface for SpriteAnimator
     /// </summary>
-    public interface ISpriteAnimatorCallback {
+    public interface ISpriteAnimator {
         void OnAnimationComplete(SpriteAnimator effect);
         void OnAnimationChangedFrame(SpriteAnimator effect, int frame);
     }
@@ -44,7 +44,7 @@ namespace BBUnity {
         private int _currentFrame = 0;
         private float _timePerFrame, _lastFrameChange = 0.0f;
 
-        BehaviourDelegate<ISpriteAnimatorCallback> _delegate;
+        BehaviourDelegate<ISpriteAnimator> _delegate;
 
         public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; } }
         public bool ShouldLoop { get { return _loop; } set { _loop = value; } }
@@ -66,7 +66,7 @@ namespace BBUnity {
          */
 
         private void Awake() {
-            _delegate =  new BehaviourDelegate<ISpriteAnimatorCallback>(this);
+            _delegate =  new BehaviourDelegate<ISpriteAnimator>(this);
             _spriteRenderer = GetComponent<SpriteRenderer>();
 
             if(_spriteRenderer == null) {
@@ -133,11 +133,11 @@ namespace BBUnity {
             }
         }
 
-        private void CallbackOnAnimationChangedFrame(ISpriteAnimatorCallback animator) {
+        private void CallbackOnAnimationChangedFrame(ISpriteAnimator animator) {
             animator.OnAnimationChangedFrame(this, _currentFrame);
         }
 
-        private void CallbackOnAnimationComplete(ISpriteAnimatorCallback animator) {
+        private void CallbackOnAnimationComplete(ISpriteAnimator animator) {
             animator.OnAnimationComplete(this);
         }
 
@@ -206,7 +206,7 @@ namespace BBUnity {
             _frames = (Sprite[])sprites.Clone();
         }
 
-        public void AddCallback(ISpriteAnimatorCallback callback) {
+        public void AddCallback(ISpriteAnimator callback) {
             _delegate.AddDelegate(callback);
         }
 
