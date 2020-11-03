@@ -44,7 +44,7 @@ namespace BBUnity {
         private int _currentFrame = 0;
         private float _timePerFrame, _lastFrameChange = 0.0f;
 
-        CallbackHandler<ISpriteAnimatorCallback> _callbackHandler;
+        BehaviourDelegate<ISpriteAnimatorCallback> _delegate;
 
         public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; } }
         public bool ShouldLoop { get { return _loop; } set { _loop = value; } }
@@ -66,7 +66,7 @@ namespace BBUnity {
          */
 
         private void Awake() {
-            _callbackHandler =  new CallbackHandler<ISpriteAnimatorCallback>(this);
+            _delegate =  new BehaviourDelegate<ISpriteAnimatorCallback>(this);
             _spriteRenderer = GetComponent<SpriteRenderer>();
 
             if(_spriteRenderer == null) {
@@ -108,7 +108,7 @@ namespace BBUnity {
         private void ChangeFrame(int frame) {
             _currentFrame = frame;
             _spriteRenderer.sprite = _frames[_currentFrame];
-            _callbackHandler.Process(CallbackOnAnimationChangedFrame);
+            _delegate.Process(CallbackOnAnimationChangedFrame);
         }
 
         private void CalculateTimePerFrame() {
@@ -124,7 +124,7 @@ namespace BBUnity {
         }
 
         private void AnimationCompleted() {
-            _callbackHandler.Process(CallbackOnAnimationComplete);
+            _delegate.Process(CallbackOnAnimationComplete);
 
             if (ShouldLoop) {
                 ChangeFrame(0);
@@ -207,7 +207,7 @@ namespace BBUnity {
         }
 
         public void AddCallback(ISpriteAnimatorCallback callback) {
-            _callbackHandler.AddCallback(callback);
+            _delegate.AddDelegate(callback);
         }
 
         /*
