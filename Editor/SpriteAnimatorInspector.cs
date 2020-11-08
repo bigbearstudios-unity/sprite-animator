@@ -17,7 +17,9 @@ namespace BBUnity.Editor {
         }
 
         private void OnEnable() {
-            _reorderableList = new ReorderableList(serializedObject, serializedObject.FindProperty("_frames"), true, true, true, true);
+            _seralizedFrames = serializedObject.FindProperty("_frames");
+
+            _reorderableList = new ReorderableList(serializedObject, _seralizedFrames, true, true, true, true);
 
             _reorderableList.drawHeaderCallback += DrawHeader;
             _reorderableList.drawElementCallback += DrawElement;
@@ -26,8 +28,6 @@ namespace BBUnity.Editor {
             _reorderableList.onReorderCallbackWithDetails += ReorderCallbackDelegateWithDetails;
 
             _reorderableList.elementHeight = 50.0f;
-
-            _seralizedFrames = serializedObject.FindProperty("_frames");
         }
 
         private void OnDisable() {

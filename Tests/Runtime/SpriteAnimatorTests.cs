@@ -87,7 +87,7 @@ public class SpriteAnimatorTests {
         });
     }
 
-    public class SpriteAnimatorTestCallbackHandler : ISpriteAnimatorCallback {
+    public class SpriteAnimatorTestCallbackHandler : ISpriteAnimator {
         public bool onAnimationChangedFrameCalled = false;
         public bool onAnimationCompleteCalled = false;
 
