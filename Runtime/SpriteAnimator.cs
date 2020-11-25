@@ -16,7 +16,7 @@ namespace BBUnity {
     /// SpriteAnimator
     /// A simple sprite animator for use without the Unity animation system
     /// </summary>
-    [AddComponentMenu("BBUnity/SpriteAnimator")]
+    [AddComponentMenu("BBUnity/2D/SpriteAnimator")]
     public class SpriteAnimator : MonoBehaviour {
 
         [Tooltip("The frames per second at which the animation will run")]
