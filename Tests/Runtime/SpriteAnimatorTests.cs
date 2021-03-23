@@ -52,7 +52,7 @@ public class SpriteAnimatorTests {
     [Test]
     public void SpriteAnimator_ShouldResetOnceAtEndOfFrame_WhenLooped() {
         CreateThenDestorySpriteAnimator((SpriteAnimator animator) => {
-            animator.SetShouldLoop(true);
+            animator.SetOnLoop(SpriteAnimator.OnLoopTypes.Loop);
 
             Assert.AreEqual(0, animator.CurrentFrame);
 
@@ -70,7 +70,7 @@ public class SpriteAnimatorTests {
     [Test]
     public void SpriteAnimator_ShouldTransitionToStoppedAtEndOfFrames_WhenNotLooped() {
         CreateThenDestorySpriteAnimator((SpriteAnimator animator) => {
-            animator.SetShouldLoop(false);
+            animator.SetOnLoop(SpriteAnimator.OnLoopTypes.Stop);
 
             Assert.AreEqual(0, animator.CurrentFrame);
 

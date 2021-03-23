@@ -19,6 +19,12 @@ namespace BBUnity {
     [AddComponentMenu("BBUnity/2D/SpriteAnimator")]
     public class SpriteAnimator : MonoBehaviour {
 
+        public enum OnLoopTypes {
+            Loop,
+            Stop,
+            Disable
+        }
+
         [Tooltip("The frames per second at which the animation will run")]
         [SerializeField]
         private int _framesPerSecond = 60;
@@ -27,9 +33,9 @@ namespace BBUnity {
         [SerializeField]
         private bool _startAutomatically = true;
 
-        [Tooltip("Should the animation loop?")]
+        [Tooltip("Upon looping what should happen")]
         [SerializeField]
-        protected bool _loop = false;
+        private OnLoopTypes _onLoop = OnLoopTypes.Loop;
 
         [Tooltip("Should the animation restart from frame 0 when the Component is re-enabled")]
         [SerializeField]
@@ -47,7 +53,7 @@ namespace BBUnity {
         BehaviourDelegate<ISpriteAnimator> _delegate;
 
         public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; } }
-        public bool ShouldLoop { get { return _loop; } set { _loop = value; } }
+        public bool ShouldLoop { get { return _onLoop == OnLoopTypes.Loop; } }
         public bool StartAutomatically { get { return _startAutomatically; } set { _startAutomatically = value; } }
         public bool RestartOnEnable { get { return _restartOnEnable; } set { _restartOnEnable = value; } }
 
@@ -82,9 +88,7 @@ namespace BBUnity {
         }
 
         private void Start() {
-            if(_startAutomatically) {
-                StartAnimation();
-            }
+            _isPlaying = _startAutomatically;
         }
 
         private void OnEnable() {
@@ -126,10 +130,13 @@ namespace BBUnity {
         private void AnimationCompleted() {
             _delegate.Process(CallbackOnAnimationComplete);
 
-            if (ShouldLoop) {
+            if(_onLoop == OnLoopTypes.Loop) {
                 ChangeFrame(0);
-            } else {
+            } else if(_onLoop == OnLoopTypes.Stop) {
                 StopAnimation();
+            } else if(_onLoop == OnLoopTypes.Disable) {
+                StopAnimation();
+                gameObject.SetActive(false);
             }
         }
 
@@ -177,8 +184,8 @@ namespace BBUnity {
             _isPlaying = false;
         }
 
-        public void SetShouldLoop(bool loop) {
-            _loop = loop;
+        public void SetOnLoop(OnLoopTypes onLoop) {
+            _onLoop = onLoop;
         }
 
         /// <summary>
