@@ -2,22 +2,16 @@
 using UnityEngine;
 
 namespace BBUnity {
-
-    /// <summary>
-    /// ISpriteAnimator
-    /// The interface for SpriteAnimator
-    /// </summary>
-    public interface ISpriteAnimator {
-        void OnAnimationComplete(SpriteAnimator effect);
-        void OnAnimationChangedFrame(SpriteAnimator effect, int frame);
-    }
-
     /// <summary>
     /// SpriteAnimator
     /// A simple sprite animator for use without the Unity animation system
     /// </summary>
     [AddComponentMenu("BBUnity/2D/SpriteAnimator")]
     public class SpriteAnimator : MonoBehaviour {
+
+        public delegate void OnAnimationCompleteHandler(SpriteAnimator spriteAnimator);
+        public delegate void OnAnimationChangedFrameHandler(SpriteAnimator spriteAnimator,
+            int currentFrame);
 
         public enum OnLoopTypes {
             Loop,
@@ -33,16 +27,15 @@ namespace BBUnity {
         [SerializeField]
         private bool _startAutomatically = true;
 
-        [Tooltip("Upon looping what should happen")]
-        [SerializeField]
-        private OnLoopTypes _onLoop = OnLoopTypes.Loop;
-
         [Tooltip("Should the animation restart from frame 0 when the Component is re-enabled")]
         [SerializeField]
         private bool _restartOnEnable = true;
 
+        [Tooltip("Upon looping what should happen")]
         [SerializeField]
-        [HideInInspector]
+        private OnLoopTypes _onLoop = OnLoopTypes.Loop;
+
+        [SerializeField]
         private Sprite[] _frames = null;
 
         private SpriteRenderer _spriteRenderer;
@@ -50,7 +43,8 @@ namespace BBUnity {
         private int _currentFrame = 0;
         private float _timePerFrame, _lastFrameChange = 0.0f;
 
-        BehaviourDelegate<ISpriteAnimator> _delegate;
+        public event OnAnimationCompleteHandler OnAnimationCompleteEvent;
+        public event OnAnimationChangedFrameHandler OnAnimationChangedFrameEvent;
 
         public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; } }
         public bool ShouldLoop { get { return _onLoop == OnLoopTypes.Loop; } }
@@ -72,7 +66,6 @@ namespace BBUnity {
          */
 
         private void Awake() {
-            _delegate =  new BehaviourDelegate<ISpriteAnimator>(this);
             _spriteRenderer = GetComponent<SpriteRenderer>();
 
             if(_spriteRenderer == null) {
@@ -112,7 +105,7 @@ namespace BBUnity {
         private void ChangeFrame(int frame) {
             _currentFrame = frame;
             _spriteRenderer.sprite = _frames[_currentFrame];
-            _delegate.Process(CallbackOnAnimationChangedFrame);
+            OnAnimationChangedFrameEvent?.Invoke(this, _currentFrame);
         }
 
         private void CalculateTimePerFrame() {
@@ -128,7 +121,7 @@ namespace BBUnity {
         }
 
         private void AnimationCompleted() {
-            _delegate.Process(CallbackOnAnimationComplete);
+            OnAnimationCompleteEvent?.Invoke(this);
 
             if(_onLoop == OnLoopTypes.Loop) {
                 ChangeFrame(0);
@@ -138,14 +131,6 @@ namespace BBUnity {
                 StopAnimation();
                 gameObject.SetActive(false);
             }
-        }
-
-        private void CallbackOnAnimationChangedFrame(ISpriteAnimator animator) {
-            animator.OnAnimationChangedFrame(this, _currentFrame);
-        }
-
-        private void CallbackOnAnimationComplete(ISpriteAnimator animator) {
-            animator.OnAnimationComplete(this);
         }
 
         /// <summary>
@@ -211,10 +196,6 @@ namespace BBUnity {
         /// <param name="sprites"></param>
         public void SetFrames(Sprite[] sprites) {
             _frames = (Sprite[])sprites.Clone();
-        }
-
-        public void AddCallback(ISpriteAnimator callback) {
-            _delegate.AddDelegate(callback);
         }
 
         /*

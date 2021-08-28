@@ -4,6 +4,7 @@ using UnityEditorInternal;
 
 namespace BBUnity.Editor {
 
+    #if !UNITY_5_3_OR_NEWER //We only render this version in older Unity versions
     [CustomEditor(typeof(SpriteAnimator))]
     public class listExampleInspector : UnityEditor.Editor {
 
@@ -76,4 +77,5 @@ namespace BBUnity.Editor {
             _reorderableList.DoLayoutList();
         }
     }
+    #endif
 }
