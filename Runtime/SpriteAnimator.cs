@@ -9,9 +9,8 @@ namespace BBUnity {
     [AddComponentMenu("BBUnity/2D/SpriteAnimator")]
     public class SpriteAnimator : MonoBehaviour {
 
-        public delegate void OnAnimationCompleteHandler(SpriteAnimator spriteAnimator);
-        public delegate void OnAnimationChangedFrameHandler(SpriteAnimator spriteAnimator,
-            int currentFrame);
+        public delegate void OnAnimationCompleteEventHandler(SpriteAnimator spriteAnimator);
+        public delegate void OnAnimationChangedFrameEventHandler(SpriteAnimator spriteAnimator, int currentFrame);
 
         public enum OnLoopTypes {
             Loop,
@@ -43,8 +42,8 @@ namespace BBUnity {
         private int _currentFrame = 0;
         private float _timePerFrame, _lastFrameChange = 0.0f;
 
-        public event OnAnimationCompleteHandler OnAnimationCompleteEvent;
-        public event OnAnimationChangedFrameHandler OnAnimationChangedFrameEvent;
+        public event OnAnimationCompleteEventHandler OnAnimationCompleteEvent;
+        public event OnAnimationChangedFrameEventHandler OnAnimationChangedFrameEvent;
 
         public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; } }
         public bool ShouldLoop { get { return _onLoop == OnLoopTypes.Loop; } }
