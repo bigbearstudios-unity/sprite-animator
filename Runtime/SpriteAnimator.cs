@@ -4,19 +4,18 @@ using UnityEngine;
 namespace BBUnity {
     /// <summary>
     /// SpriteAnimator
-    /// A simple sprite animator for use without the Unity animation system
+    /// A simple sprite animation component 
     /// </summary>
     [AddComponentMenu("BBUnity/2D/SpriteAnimator")]
     public class SpriteAnimator : MonoBehaviour {
 
         public delegate void OnAnimationCompleteHandler(SpriteAnimator spriteAnimator);
-        public delegate void OnAnimationChangedFrameHandler(SpriteAnimator spriteAnimator,
-            int currentFrame);
+        public delegate void OnAnimationChangedFrameHandler(SpriteAnimator spriteAnimator, int currentFrame);
 
         public enum OnLoopTypes {
             Loop,
             Stop,
-            Disable
+            DisableGameObject
         }
 
         [Tooltip("The frames per second at which the animation will run")]
@@ -67,7 +66,6 @@ namespace BBUnity {
 
         private void Awake() {
             _spriteRenderer = GetComponent<SpriteRenderer>();
-
             if(_spriteRenderer == null) {
                 Debug.LogError("A SpriteRenderer is required to use SpriteAnimator");
             }
@@ -76,23 +74,24 @@ namespace BBUnity {
                 _frames = new Sprite[0];
             }
 
+            AssignCallbackInterfaceEvents();
             CalculateTimePerFrame();
             ResetAnimation();
         }
 
-        private void Start() {
+        protected void Start() {
             _isPlaying = _startAutomatically;
         }
 
-        private void OnEnable() {
+        protected void OnEnable() {
             if(_restartOnEnable) {
                 ResetAnimation();
             }
 
-            StartAnimation();
+            StartAnimation(_startAutomatically);
         }
 
-        private void Update() {
+        protected void Update() {
             if(IsPlaying) {
                 _lastFrameChange += Time.deltaTime;
                 if(_lastFrameChange >= _timePerFrame) {
@@ -102,6 +101,25 @@ namespace BBUnity {
             }
         }
 
+        /*
+         * Private Methods
+         */
+
+        /// <summary>
+        /// Iterates through all of the attached components to find IPoolBehaviour,
+        /// foreach one found assigns an onCreateEvent, onSpawnEvent
+        /// </summary>
+        private void AssignCallbackInterfaceEvents() {
+            ISpriteAnimator[] callbacks = GetComponents<ISpriteAnimator>();
+            foreach(ISpriteAnimator behaviour in callbacks) {
+                AddCallbackListener(behaviour);
+            }
+            
+        }
+
+        /// <summary>
+        /// Changes the current frame to the frame number provided
+        /// </summary>
         private void ChangeFrame(int frame) {
             _currentFrame = frame;
             _spriteRenderer.sprite = _frames[_currentFrame];
@@ -127,11 +145,15 @@ namespace BBUnity {
                 ChangeFrame(0);
             } else if(_onLoop == OnLoopTypes.Stop) {
                 StopAnimation();
-            } else if(_onLoop == OnLoopTypes.Disable) {
+            } else if(_onLoop == OnLoopTypes.DisableGameObject) {
                 StopAnimation();
                 gameObject.SetActive(false);
             }
         }
+
+        /*
+         * Public Methods
+         */
 
         /// <summary>
         /// Increaments the current frame, this will always force a frame
@@ -158,7 +180,7 @@ namespace BBUnity {
         /// <summary>
         /// Starts the animation if its in a stopped state
         /// </summary>
-        public void StartAnimation() {
+        public void StartAnimation(bool play = true) {
             _isPlaying = true;
         }
 
@@ -196,6 +218,11 @@ namespace BBUnity {
         /// <param name="sprites"></param>
         public void SetFrames(Sprite[] sprites) {
             _frames = (Sprite[])sprites.Clone();
+        }
+
+        public void AddCallbackListener(ISpriteAnimator listener) {
+            OnAnimationCompleteEvent += listener.OnAnimationComplete;
+            OnAnimationChangedFrameEvent += listener.OnAnimationChangedFrame;
         }
 
         /*
