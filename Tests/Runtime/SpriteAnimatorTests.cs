@@ -87,7 +87,7 @@ public class SpriteAnimatorTests {
         });
     }
 
-    public class SpriteAnimatorTestCallbackHandler {
+    public class SpriteAnimatorTestCallbackHandler : ISpriteAnimator {
         public bool onAnimationChangedFrameCalled = false;
         public bool onAnimationCompleteCalled = false;
 
@@ -107,6 +107,22 @@ public class SpriteAnimatorTests {
 
             animator.OnAnimationChangedFrameEvent += handler.OnAnimationChangedFrame;
             animator.OnAnimationCompleteEvent += handler.OnAnimationComplete;
+
+            animator.IncrementCurrentFrame();
+            Assert.IsTrue(handler.onAnimationChangedFrameCalled);
+
+            animator.IncrementCurrentFrame();
+            animator.IncrementCurrentFrame();
+            Assert.IsTrue(handler.onAnimationCompleteCalled);
+        });
+    }
+
+    [Test]
+    public void AddCallbackUsingInterface_ShouldAddANewCallbackToTheAnimator() {
+        CreateThenDestorySpriteAnimator((SpriteAnimator animator) => {
+            SpriteAnimatorTestCallbackHandler handler = new SpriteAnimatorTestCallbackHandler();
+
+            animator.AddCallbackListener(handler);
 
             animator.IncrementCurrentFrame();
             Assert.IsTrue(handler.onAnimationChangedFrameCalled);
