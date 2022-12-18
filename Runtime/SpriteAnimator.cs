@@ -106,7 +106,7 @@ namespace BBUnity {
          */
 
         /// <summary>
-        /// Iterates through all of the attached components to find IPoolBehaviour,
+        /// Iterates through all of the attached components to find ISpriteAnimator,
         /// foreach one found assigns an onCreateEvent, onSpawnEvent
         /// </summary>
         private void AssignCallbackInterfaceEvents() {
