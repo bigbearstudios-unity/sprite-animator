@@ -3,7 +3,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-using BBUnity;
+using BBUnity.Sprites;
 using BBUnity.TestSupport;
 
 public class SpriteAnimatorTests {

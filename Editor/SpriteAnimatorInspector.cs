@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace BBUnity.Editor {
+namespace BBUnity.Sprites.Editor {
 
     #if !UNITY_5_3_OR_NEWER //We only render this version in older Unity versions
     [CustomEditor(typeof(SpriteAnimator))]

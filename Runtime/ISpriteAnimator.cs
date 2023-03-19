@@ -1,5 +1,5 @@
 
-namespace BBUnity {
+namespace BBUnity.Sprites {
     
     /// <summary>
     /// ISpriteAnimator

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace BBUnity {
+namespace BBUnity.Sprites {
     /// <summary>
     /// SpriteAnimator
     /// A simple sprite animation component 
