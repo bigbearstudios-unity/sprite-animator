@@ -1,10 +1,10 @@
 
-namespace BBUnity.Sprites {
+namespace BBUnity.SpriteAnimation {
     
     /// <summary>
-    /// ISpriteAnimator
     /// The interface for SpriteAnimator. This allows easier binding for animation events of
-    /// OnAnimationComplete and OnAnimationChangedFrame
+    /// OnAnimationComplete and OnAnimationChangedFrame when you don't wish to subclass
+    /// the SpriteAnimator itself.
     /// </summary>
     public interface ISpriteAnimator {
         void OnAnimationComplete(SpriteAnimator spriteAnimator);

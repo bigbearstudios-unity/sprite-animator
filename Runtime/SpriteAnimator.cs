@@ -1,40 +1,50 @@
 ﻿using System;
 using UnityEngine;
 
-namespace BBUnity.Sprites {
+namespace BBUnity.SpriteAnimation {
+
+    public class SpriteAnimatorRendererNotFoundException : Exception {
+        public SpriteAnimatorRendererNotFoundException() : base("A SpriteRenderer could not be found. Please ensure your component has one.") { }
+    }
+
+    public class SpriteAnimatorNoFramesException : Exception {
+        public SpriteAnimatorNoFramesException() : base("The sprite animator has attempted to be started without frames. At least one frame is required.") { }
+    }
+
+    public class SpriteAnimatorImmutableWhilePlaying : Exception {
+        public SpriteAnimatorImmutableWhilePlaying() : base("The Sprite Animator is immutable when playing. Please stop the animation first") { }
+    }
+
+    public class SpriteAnimatorInvalidFrame : Exception {
+        public SpriteAnimatorInvalidFrame() : base("The Sprite Animator attempted to set the frame to an invalid frame") { }
+    }
+
     /// <summary>
     /// SpriteAnimator
     /// A simple sprite animation component 
     /// </summary>
     [AddComponentMenu("BBUnity/2D/SpriteAnimator")]
-    public class SpriteAnimator : MonoBehaviour {
+    public class SpriteAnimator : BBMonoBehaviour {
 
         public delegate void OnAnimationCompleteEventHandler(SpriteAnimator spriteAnimator);
         public delegate void OnAnimationChangedFrameEventHandler(SpriteAnimator spriteAnimator, int currentFrame);
 
-        public enum OnLoopTypes {
-            Loop,
-            Stop,
-            DisableGameObject
-        }
-
-        [Tooltip("The frames per second at which the animation will run")]
-        [SerializeField]
+        [SerializeField, Tooltip("The frames per second at which the animation will run")]
         private int _framesPerSecond = 60;
 
-        [Tooltip("Should the animation start when the Component / GameObject is Started / Enabled")]
-        [SerializeField]
-        private bool _startAutomatically = true;
+        [SerializeField, Tooltip("Sets if the animation should start when Start is called")]
+        private bool _playOnStart = true;
 
-        [Tooltip("Should the animation restart from frame 0 when the Component is re-enabled")]
-        [SerializeField]
+        [SerializeField, Tooltip("Sets if the animation should start when OnEnable is called")]
+        private bool _playOnEnable = true;
+
+        [SerializeField, Tooltip("Sets if the animation should restart from frame 0 when OnEnable is called")]
         private bool _restartOnEnable = true;
 
-        [Tooltip("Upon looping what should happen")]
-        [SerializeField]
+        [SerializeField, Tooltip("Sets the action which should take place upon the animation completing")]
         private OnLoopTypes _onLoop = OnLoopTypes.Loop;
 
-        [SerializeField]
+        [SerializeField, Tooltip("The frames which will make up the animation")]
         private Sprite[] _frames = null;
 
         private SpriteRenderer _spriteRenderer;
@@ -45,16 +55,12 @@ namespace BBUnity.Sprites {
         public event OnAnimationCompleteEventHandler OnAnimationCompleteEvent;
         public event OnAnimationChangedFrameEventHandler OnAnimationChangedFrameEvent;
 
-        public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; } }
-        public bool ShouldLoop { get { return _onLoop == OnLoopTypes.Loop; } }
-        public bool StartAutomatically { get { return _startAutomatically; } set { _startAutomatically = value; } }
+        public bool IsPlaying { get { return _isPlaying; } }
+        public bool PlayOnEnable { get { return _playOnEnable; } }
         public bool RestartOnEnable { get { return _restartOnEnable; } set { _restartOnEnable = value; } }
 
         public int CurrentFrame { get { return _currentFrame; } }
         public bool IsComplete { get { return _currentFrame == (_frames.Length - 1); } }
-
-        private int NextFrame { get { return _currentFrame + 1; } }
-        private bool HasFrames { get { return _frames.Length > 0; } }
 
         public Sprite[] Frames {
             get { return _frames; }
@@ -62,36 +68,30 @@ namespace BBUnity.Sprites {
 
         /*
          * Unity Overrides
+         *
+         * All of these are marked as protected virtual incase a subclass
+         * wishes to change the inner workings of these methods
          */
 
-        private void Awake() {
-            _spriteRenderer = GetComponent<SpriteRenderer>();
-            if(_spriteRenderer == null) {
-                Debug.LogError("A SpriteRenderer is required to use SpriteAnimator");
-            }
-
-            if(_frames == null) {
-                _frames = new Sprite[0];
-            }
-
+        protected virtual void Awake() {
+            FindSpriteRenderer();
             AssignCallbackInterfaceEvents();
             CalculateTimePerFrame();
-            ResetAnimation();
         }
 
-        protected void Start() {
-            _isPlaying = _startAutomatically;
+        protected virtual void Start() {
+            SetPlaying(_playOnStart);
         }
 
-        protected void OnEnable() {
+        protected virtual void OnEnable() {
             if(_restartOnEnable) {
                 ResetAnimation();
             }
 
-            StartAnimation(_startAutomatically);
+            SetPlaying(_playOnEnable);
         }
 
-        protected void Update() {
+        protected virtual void Update() {
             if(IsPlaying) {
                 _lastFrameChange += Time.deltaTime;
                 if(_lastFrameChange >= _timePerFrame) {
@@ -105,6 +105,19 @@ namespace BBUnity.Sprites {
          * Private Methods
          */
 
+        private void FindSpriteRenderer() {
+            _spriteRenderer = GetComponent<SpriteRenderer>();
+            if(_spriteRenderer == null) {
+                throw new SpriteAnimatorRendererNotFoundException();
+            }
+        }
+
+        private void ValidateFrames() {
+            if(_frames == null || _frames.Length == 0) {
+                throw new SpriteAnimatorNoFramesException();
+            }
+        }
+
         /// <summary>
         /// Iterates through all of the attached components to find ISpriteAnimator,
         /// foreach one found assigns an onCreateEvent, onSpawnEvent
@@ -114,7 +127,6 @@ namespace BBUnity.Sprites {
             foreach(ISpriteAnimator behaviour in callbacks) {
                 AddCallbackListener(behaviour);
             }
-            
         }
 
         /// <summary>
@@ -131,11 +143,10 @@ namespace BBUnity.Sprites {
         }
 
         private void ResetAnimation() {
-            _currentFrame = 0;
+            ValidateFrames();
 
-            if(_spriteRenderer != null && HasFrames) {
-                _spriteRenderer.sprite = _frames[_currentFrame];
-            }
+            _currentFrame = 0;
+            _spriteRenderer.sprite = _frames[_currentFrame];
         }
 
         private void AnimationCompleted() {
@@ -145,52 +156,58 @@ namespace BBUnity.Sprites {
                 ChangeFrame(0);
             } else if(_onLoop == OnLoopTypes.Stop) {
                 StopAnimation();
-            } else if(_onLoop == OnLoopTypes.DisableGameObject) {
-                StopAnimation();
-                gameObject.SetActive(false);
+            } else if(_onLoop == OnLoopTypes.DisableMonoBehaviour) {
+                Disable();
+            } else if(_onLoop == OnLoopTypes.DeactivateGameObject) {
+                DeactivateGameObject();
             }
         }
 
         /*
          * Public Methods
+         * 
          */
 
-        /// <summary>
-        /// Increaments the current frame, this will always force a frame
-        /// skip even if the animation is paused
-        /// </summary>
-        public void IncrementCurrentFrame() {
-            if(IsComplete) {
-                AnimationCompleted();
-            } else {
-                ChangeFrame(NextFrame);
+        public void SetPlaying(bool playing) {
+            if(playing) {
+                ValidateFrames();
             }
-        }
 
-        public void IncrementCurrentFrame(bool forceIncrement) {
-            if(forceIncrement) {
-                IncrementCurrentFrame();
-            } else {
-                if(IsPlaying) {
-                    IncrementCurrentFrame();
-                }
-            }
+            _isPlaying = playing;
         }
 
         /// <summary>
         /// Starts the animation if its in a stopped state
         /// </summary>
-        public void StartAnimation(bool play = true) {
-            _isPlaying = true;
+        public void Play() {
+            SetPlaying(true);
         }
 
         /// <summary>
         /// Stops the animation if its in a playable state
         /// </summary>
         public void StopAnimation() {
-            _isPlaying = false;
+            SetPlaying(false);
         }
 
+        /// <summary>
+        /// Increments the current frame. Internally this will first check if the animation is complete and
+        /// /// if it is then the AnimationCompleted method will be called. Otherwise the frame will be 
+        /// </summary>
+        public void IncrementCurrentFrame() {
+            if(IsComplete) {
+                AnimationCompleted();
+            } else {
+                ChangeFrame(_currentFrame + 1);
+            }
+        }
+
+        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="onLoop"></param>
         public void SetOnLoop(OnLoopTypes onLoop) {
             _onLoop = onLoop;
         }
@@ -200,24 +217,27 @@ namespace BBUnity.Sprites {
         /// </summary>
         /// <param name="frame"></param>
         public void SetCurrentFrame(int frame) {
-            ChangeFrame(frame);
-        }
+            if(frame > _frames.Length - 1) {
+                throw new SpriteAnimatorInvalidFrame();
+            }
 
-        /// <summary>
-        /// Adds a single sprite to the end of the frames array
-        /// </summary>
-        /// <param name="sprite"></param>
-        public void AddFrame(Sprite sprite) {
-            Array.Resize(ref _frames, _frames.Length + 1);
-            _frames[_frames.Length - 1] = sprite;
+            ChangeFrame(frame);
         }
 
         /// <summary>
         /// Replaces the entire frames array
         /// </summary>
         /// <param name="sprites"></param>
-        public void SetFrames(Sprite[] sprites) {
+        public void SetFrames(Sprite[] sprites, bool resetAnimation = true) {
+            if(_isPlaying) {
+                throw new SpriteAnimatorImmutableWhilePlaying();
+            }
+
             _frames = (Sprite[])sprites.Clone();
+
+            if(resetAnimation) {
+                ResetAnimation();
+            }
         }
 
         public void AddCallbackListener(ISpriteAnimator listener) {

@@ -68,8 +68,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Made sure _startAutomatically was honoured when onEnable was called
 
-## [2.0.0] - 2023-03-19
+## [2.0.0] - 
 
 ### Changed
 
 - Added the .Sprites namespace
+
+## [3.0.0] - 
+
+### Changed
+
+- Changed the .Sprites namespace to .SpriteAnimation

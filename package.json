@@ -1,6 +1,6 @@
 {
   "name": "com.bigbearstudios.bbunity-sprite-animator",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "displayName": "BBUnity Sprite Animator",
   "description": "A simple sprite animator for use with Unity. Part of the BBUnity project - Requires Unity / C# to use",
   "unity": "2018.3",

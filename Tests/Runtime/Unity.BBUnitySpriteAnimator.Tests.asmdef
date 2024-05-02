@@ -1,9 +1,11 @@
 {
     "name": "Unity.BBUnitySpriteAnimator.Tests",
+    "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "Unity.BBUnityTestSupport",
-        "Unity.BBUnitySpriteAnimator"
+        "Unity.BBUnitySpriteAnimator",
+        "Unity.BBUnityCore"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -8,7 +8,7 @@ Its worth noting that this is a 'Sprite' animator. E.g. It allows the changing o
 
 ``` csharp
 
-import BBUnity;
+using BBUnity.SpriteAnimation;
 
 ```
 
