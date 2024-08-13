@@ -159,7 +159,7 @@ namespace BBUnity.SpriteAnimation {
             } else if(_onLoop == OnLoopTypes.DisableMonoBehaviour) {
                 Disable();
             } else if(_onLoop == OnLoopTypes.DeactivateGameObject) {
-                DeactivateGameObject();
+                Deactivate();
             }
         }
 

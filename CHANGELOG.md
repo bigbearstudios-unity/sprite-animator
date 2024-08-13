@@ -79,3 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Changed the .Sprites namespace to .SpriteAnimation
+- Version of BBUnityCore to 4.0.0
+
+### Added
+
+- More validation which now will throw exceptions
