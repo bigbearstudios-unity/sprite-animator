@@ -68,13 +68,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Made sure _startAutomatically was honoured when onEnable was called
 
-## [2.0.0] - 
+## [2.0.0]
 
 ### Changed
 
 - Added the .Sprites namespace
 
-## [3.0.0] - 
+## [3.0.0]
 
 ### Changed
 
@@ -84,3 +84,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - More validation which now will throw exceptions
+
+## [3.1.0]
+
+### Changed
+
+- Version of BBUnityTestSupport to 2.1.0
+- Version of BBUnityCore to 5.1.0
+- Refactored the callback handlers

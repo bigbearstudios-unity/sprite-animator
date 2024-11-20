@@ -125,7 +125,8 @@ namespace BBUnity.SpriteAnimation {
         private void AssignCallbackInterfaceEvents() {
             ISpriteAnimator[] callbacks = GetComponents<ISpriteAnimator>();
             foreach(ISpriteAnimator behaviour in callbacks) {
-                AddCallbackListener(behaviour);
+                OnAnimationCompleteEvent += behaviour.OnAnimationComplete;
+                OnAnimationChangedFrameEvent += behaviour.OnAnimationChangedFrame;
             }
         }
 
@@ -238,11 +239,6 @@ namespace BBUnity.SpriteAnimation {
             if(resetAnimation) {
                 ResetAnimation();
             }
-        }
-
-        public void AddCallbackListener(ISpriteAnimator listener) {
-            OnAnimationCompleteEvent += listener.OnAnimationComplete;
-            OnAnimationChangedFrameEvent += listener.OnAnimationChangedFrame;
         }
 
         /*
