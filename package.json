@@ -6,9 +6,9 @@
   "unity": "2018.3",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/big-bear-studios-open-source/bbunityspriteanimator.git"
+    "url": "git@github.com:bigbearstudios-unity/sprite-animator.git"
   },
-  "bugs": "https://gitlab.com/big-bear-studios-open-source/bbunityspriteanimator/-/issues",
+  "bugs": "https://github.com/bigbearstudios-unity/sprite-animator/issues",
   "author": {
     "name": "Big Bear Studios",
     "email": "development@bigbearstudios.co.uk",
