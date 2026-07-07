@@ -24,7 +24,7 @@ namespace BBUnity.SpriteAnimation {
     /// A simple sprite animation component 
     /// </summary>
     [AddComponentMenu("BBUnity/2D/SpriteAnimator")]
-    public class SpriteAnimator : BBMonoBehaviour {
+    public class SpriteAnimator : MonoBehaviour {
 
         public delegate void OnAnimationCompleteEventHandler(SpriteAnimator spriteAnimator);
         public delegate void OnAnimationChangedFrameEventHandler(SpriteAnimator spriteAnimator, int currentFrame);
@@ -158,9 +158,9 @@ namespace BBUnity.SpriteAnimation {
             } else if(_onLoop == OnLoopTypes.Stop) {
                 StopAnimation();
             } else if(_onLoop == OnLoopTypes.DisableMonoBehaviour) {
-                Disable();
+                enabled = false;
             } else if(_onLoop == OnLoopTypes.DeactivateGameObject) {
-                Deactivate();
+                gameObject.SetActive(false);
             }
         }
 
