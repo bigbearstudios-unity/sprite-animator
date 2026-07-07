@@ -1,26 +1,23 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
 namespace BBUnity.SpriteAnimation.Editor {
 
-    #if !UNITY_5_3_OR_NEWER //We only render this version in older Unity versions
     [CustomEditor(typeof(SpriteAnimator))]
-    public class listExampleInspector : UnityEditor.Editor {
+    public class SpriteAnimatorEditor : UnityEditor.Editor {
 
         private ReorderableList _reorderableList;
-        private SerializedProperty _seralizedFrames = null;
+        private SerializedProperty _serializedFrames = null;
 
         private SpriteAnimator Target {
-            get {
-                return target as SpriteAnimator;
-            }
+            get { return target as SpriteAnimator; }
         }
 
         private void OnEnable() {
-            _seralizedFrames = serializedObject.FindProperty("_frames");
+            _serializedFrames = serializedObject.FindProperty("_frames");
 
-            _reorderableList = new ReorderableList(serializedObject, _seralizedFrames, true, true, true, true);
+            _reorderableList = new ReorderableList(serializedObject, _serializedFrames, true, true, true, true);
 
             _reorderableList.drawHeaderCallback += DrawHeader;
             _reorderableList.drawElementCallback += DrawElement;
@@ -46,24 +43,24 @@ namespace BBUnity.SpriteAnimation.Editor {
 
         private void DrawElement(Rect rect, int index, bool active, bool focused) {
             EditorGUI.BeginChangeCheck();
-            EditorGUI.ObjectField(rect, _seralizedFrames.GetArrayElementAtIndex(index), typeof(Sprite));
-            if (EditorGUI.EndChangeCheck()) {
+            EditorGUI.ObjectField(rect, _serializedFrames.GetArrayElementAtIndex(index), typeof(Sprite));
+            if(EditorGUI.EndChangeCheck()) {
                 SaveSerializedObject();
             }
         }
 
         private void AddItem(ReorderableList list) {
-            _seralizedFrames.InsertArrayElementAtIndex(_seralizedFrames.arraySize);
+            _serializedFrames.InsertArrayElementAtIndex(_serializedFrames.arraySize);
             SaveSerializedObject();
         }
 
         private void RemoveItem(ReorderableList list) {
-            _seralizedFrames.DeleteArrayElementAtIndex(list.index);
+            _serializedFrames.DeleteArrayElementAtIndex(list.index);
             SaveSerializedObject();
         }
 
         private void ReorderCallbackDelegateWithDetails(ReorderableList list, int oldIndex, int newIndex) {
-            _seralizedFrames.MoveArrayElement(oldIndex, newIndex);
+            _serializedFrames.MoveArrayElement(oldIndex, newIndex);
             SaveSerializedObject();
         }
 
@@ -73,9 +70,10 @@ namespace BBUnity.SpriteAnimation.Editor {
         }
 
         public override void OnInspectorGUI() {
-            base.OnInspectorGUI();
+            serializedObject.Update();
+            DrawPropertiesExcluding(serializedObject, "_frames");
             _reorderableList.DoLayoutList();
+            serializedObject.ApplyModifiedProperties();
         }
     }
-    #endif
 }
