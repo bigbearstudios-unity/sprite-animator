@@ -161,6 +161,36 @@ namespace BBUnity.SpriteAnimation {
             });
         }
 
+        [Test]
+        public void IncrementCurrentFrame_WhenComplete_DisableMonoBehaviour_ShouldResetFrameAndDisable() {
+            WithAnimator(animator => {
+                animator.SetOnLoop(OnLoopTypes.DisableMonoBehaviour);
+                animator.Play();
+
+                animator.IncrementCurrentFrame();  // 0 → 1
+                animator.IncrementCurrentFrame();  // 1 → 2 (last)
+                animator.IncrementCurrentFrame();  // complete → disable
+
+                Assert.AreEqual(0, animator.CurrentFrame);
+                Assert.IsFalse(animator.enabled);
+            });
+        }
+
+        [Test]
+        public void IncrementCurrentFrame_WhenComplete_DeactivateGameObject_ShouldResetFrameAndDeactivate() {
+            WithAnimator(animator => {
+                animator.SetOnLoop(OnLoopTypes.DeactivateGameObject);
+                animator.Play();
+
+                animator.IncrementCurrentFrame();  // 0 → 1
+                animator.IncrementCurrentFrame();  // 1 → 2 (last)
+                animator.IncrementCurrentFrame();  // complete → deactivate
+
+                Assert.AreEqual(0, animator.CurrentFrame);
+                Assert.IsFalse(animator.gameObject.activeSelf);
+            });
+        }
+
         // --- Events ---
 
         [Test]
@@ -255,6 +285,23 @@ namespace BBUnity.SpriteAnimation {
                 animator.IncrementCurrentFrame();  // → 1 (fires)
                 animator.IncrementCurrentFrame();  // → 2 (fires)
                 animator.IncrementCurrentFrame();  // loops → 0 (should NOT fire)
+
+                Assert.AreEqual(2, frames.Count);
+                Assert.AreEqual(0, animator.CurrentFrame);
+            });
+        }
+
+        [Test]
+        public void OnAnimationChangedFrameEvent_ShouldNotFireAtStopBoundary() {
+            WithAnimator(animator => {
+                List<int> frames = new List<int>();
+                animator.OnAnimationChangedFrameEvent += (_, f) => frames.Add(f);
+                animator.SetOnLoop(OnLoopTypes.Stop);
+                animator.Play();
+
+                animator.IncrementCurrentFrame();  // → 1 (fires)
+                animator.IncrementCurrentFrame();  // → 2 (fires)
+                animator.IncrementCurrentFrame();  // completes → 0 (should NOT fire)
 
                 Assert.AreEqual(2, frames.Count);
                 Assert.AreEqual(0, animator.CurrentFrame);

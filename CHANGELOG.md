@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `AnimationCompleted()` now resets the current frame back to the active segment's start for every completion mode (`Stop`, `DisableMonoBehaviour`, `DeactivateGameObject`), not just `Loop`. Previously the frame was left on the last frame of the segment, which contradicted two existing tests (`IncrementCurrentFrame_WhenComplete_Stop_ShouldStopPlaying`, `Play_WithSegment_ShouldCompleteAtEndFrame`) and meant a `DisableMonoBehaviour` animator re-enabled with `PlayOnEnable = true` and `RestartOnEnable = false` would immediately re-trigger completion on the next frame.
+- `OnValidate()` now logs a warning when clamping a non-positive `FramesPerSecond`/`SpeedMultiplier` set via the inspector, instead of silently correcting it.
+
+### Added
+
+- Test coverage for the `DisableMonoBehaviour` and `DeactivateGameObject` completion modes (previously only `Loop`/`Stop` were tested), and a boundary regression test confirming `OnAnimationChangedFrameEvent` doesn't fire on `Stop` completion (mirroring the existing `Loop` one).
+
 ## [0.0.1] - 2020-07-31
 
 ### Added

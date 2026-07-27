@@ -184,11 +184,14 @@ namespace BBUnity.SpriteAnimation {
         }
 
         private void AnimationCompleted() {
+            // Every completion path resets the frame back to the start of the active segment,
+            // set directly (not via ChangeFrame()) so OnAnimationChangedFrameEvent never fires
+            // at a completion boundary.
+            _currentFrame = _segmentStart;
+            if(_spriteRenderer != null) { _spriteRenderer.sprite = _frames[_currentFrame]; }
+
             if(_onLoop == OnLoopTypes.Loop) {
-                // Single loop notification — frame is reset directly without firing OnAnimationChangedFrameEvent.
                 OnAnimationLoopEvent?.Invoke(this);
-                _currentFrame = _segmentStart;
-                if(_spriteRenderer != null) { _spriteRenderer.sprite = _frames[_currentFrame]; }
             } else {
                 OnAnimationCompleteEvent?.Invoke(this);
                 if(_onLoop == OnLoopTypes.Stop) {
@@ -327,8 +330,14 @@ namespace BBUnity.SpriteAnimation {
          */
 
         private void OnValidate() {
-            if(_framesPerSecond <= 0) { _framesPerSecond = 1; }
-            if(_speedMultiplier <= 0) { _speedMultiplier = 1.0f; }
+            if(_framesPerSecond <= 0) {
+                Debug.LogWarning("BBUnity SpriteAnimator: Frames Per Second must be greater than 0. Reset to 1.", this);
+                _framesPerSecond = 1;
+            }
+            if(_speedMultiplier <= 0) {
+                Debug.LogWarning("BBUnity SpriteAnimator: Speed Multiplier must be greater than 0. Reset to 1.", this);
+                _speedMultiplier = 1.0f;
+            }
             CalculateTimePerFrame();
         }
     }
